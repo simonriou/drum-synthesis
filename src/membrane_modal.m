@@ -10,7 +10,7 @@ gamma = 400;
 sigma0 = 6*log(10)/T60;
 
 h = gamma*k/lambda; % grid spacing
-epsilon = 1.3; % aspect ratio
+epsilon = 1; % aspect ratio
 Nx = floor(sqrt(epsilon)/h);
 Ny = floor(1/(sqrt(epsilon)*h));
 h = sqrt(epsilon)/Nx; lambda = gamma*k/h;
