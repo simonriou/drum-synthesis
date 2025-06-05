@@ -109,9 +109,9 @@ f_{l, m}^{-, n} = \frac{1}{2k}\left( \Psi_{., ., N_{z}}^{n+1} - \Psi_{., ., N_{z
 \end{align*}$$
 
 If we had to detail the process of computing $w^2$ from $w^{1}$, it would be
-1. We know $w_{l, m}^1$ as it is the excitation (typically a raised cosine distribution). We consider that $w_{l, m}^0 = 0$. We consider that the acoustic field inside the cavity $\Psi$ is zero everywhere except of the $z = N_{z}$ layer.
-2. The displacement of the membrane at time steps $1$ and $0$ allows us to determine the value of $\Psi_{., ., N_{z}}^1$ (coupling conditions), being the excitation of the acoustic field inside the cavity.
-3. The 3D wave equation allows us to then determine $\Psi_{l, m, p}^2$ for all $p$.
+1. We know $w_{l, m}^1$ as it is the excitation (typically a raised cosine distribution). We consider that $w_{l, m}^0 = 0$. We consider that the acoustic field inside the cavity $\Psi$ is zero everywhere at $n = 0$.
+2. The displacement of the membrane at time steps $1$ and $0$ allows us to determine the value of $\Psi_{., ., N_{z}}^1$ or $\Psi_{., ., N_{z}}^0$, I'm not sure (coupling conditions).
+3. The 3D wave equation allows us to then determine $\Psi_{l, m, p}^2$ or $\Psi_{l, m, p}^1$, I don't know, for all $p$. The influence of the membrane is contained in the previous iteration of the acoustic field (Cf. step 2).
 4. $\Psi_{l, m, p}^2$ and $\Psi_{l, m, p}^1$ allows us to determine $f^-(n = 1)$ the coupling term.
 5. $f^-(n=1), w_{l, m}^0$ and $w_{l, m}^1$ are now used to determine $w_{l, m}^2$.
 6. We repeat.
