@@ -96,25 +96,51 @@ $$\begin{align*}
 \end{align*}$$
 In other words, the velocity of the membrane is equal to the opposite of the vertical velocity of the acoustic field evaluated right below the membrane, i.e. at the topmost layer of the 3D cavity. Differentiating this relation leads to
 $$\begin{align*}
-\frac{1}{2k}\left( w_{l, m}^{n+1} - w_{l, m}^{n-1} \right) = -\frac{1}{h}\left( \Psi_{l, m, N_{z}}^n - \Psi_{l, m, N_{z} - 1}^{n}\right) 
+\frac{1}{2k}\left( w_{l, m}^{n+1} - w_{l, m}^{n-1} \right) = -\frac{1}{2h}\left( \Psi_{l, m, N_{z}+1}^{*n} - \Psi_{l, m, N_{z} - 1}^{n}\right) 
 \end{align*}$$
-This relation will be used to determine the effect of the vibration of the membrane on the acoustic field inside the cavity. 
+This relation will be used to determine the ghost value $\Psi_{l, m, N_{z}+1}^{*n}$. 
 We now need a way to determine the inverse process, i.e. what is the influence of the acoustic field inside the drum on the displacement of the membrane. To do so, we use the following coupling term
 $$\begin{align*}
 f_{l, m}^{-, n} = \rho \lim_{ p \to N_{z} } \delta_{t.} \Psi_{l, m, p}^n
 \end{align*}$$
 which can be written as
 $$\begin{align*}
-f_{l, m}^{-, n} = \frac{1}{2k}\left( \Psi_{., ., N_{z}}^{n+1} - \Psi_{., ., N_{z}}^{n-1} \right) 
+f_{l, m}^{-, n} = \frac{\rho}{2k}\left( \Psi_{., ., N_{z}}^{n+1} - \Psi_{., ., N_{z}}^{n-1} \right) 
 \end{align*}$$
 
-If we had to detail the process of computing $w^2$ from $w^{1}$, it would be
-1. We know $w_{l, m}^1$ as it is the excitation (typically a raised cosine distribution). We consider that $w_{l, m}^0 = 0$. We consider that the acoustic field inside the cavity $\Psi$ is zero everywhere at $n = 0$.
-2. The displacement of the membrane at time steps $1$ and $0$ allows us to determine the value of $\Psi_{., ., N_{z}}^1$ or $\Psi_{., ., N_{z}}^0$, I'm not sure (coupling conditions).
-3. The 3D wave equation allows us to then determine $\Psi_{l, m, p}^2$ or $\Psi_{l, m, p}^1$, I don't know, for all $p$. The influence of the membrane is contained in the previous iteration of the acoustic field (Cf. step 2).
-4. $\Psi_{l, m, p}^2$ and $\Psi_{l, m, p}^1$ allows us to determine $f^-(n = 1)$ the coupling term.
-5. $f^-(n=1), w_{l, m}^0$ and $w_{l, m}^1$ are now used to determine $w_{l, m}^2$.
-6. We repeat.
+As a result, we obtain an explicit scheme to calculate the displacement of the membrane. To illustrate (and for simplicity), we will only detail the computations in the simplest case, where no damping term is added to the membrane's scheme. The recursion for the displacement on the membrane is
+$$\begin{align*}
+w_{l, m}^{n+1} = \lambda^2\left( w_{l+1, m}^{n} + w_{l-1, m}^n + w_{l, m+1}^n + w_{l, m-1}^n \right) + 2(1 - 2\lambda^2) w_{l, m}^n - w_{l, m}^{n-1} + f^{-, n}_{l, m}
+\end{align*}$$
+Substituting the expression of coupling term, we get
+$$\begin{align*}
+w_{l, m}^{n+1} = \lambda^2\left( w_{l+1, m}^{n} + w_{l-1, m}^n + w_{l, m+1}^n + w_{l, m-1}^n \right) + 2(1 - 2\lambda^2) w_{l, m}^n - w_{l, m}^{n-1} + \frac{\rho}{2k}\left( \Psi_{l, m, N_{z}}^{n+1} - \Psi_{l, m, N_{z}}^{n-1} \right) 
+\end{align*}$$
+Let's now compute the 3D wave equation scheme to compute $\Psi_{l, m, N_{z}}^{n+1}$:
+$$
+\begin{align}
+\Psi_{l, m, N_{z}}^{n+1} &= 2\Psi_{l, m, N_{z}}^{n} + \frac{\lambda^2}{h^2} \left( \Psi_{l+1, m, N_{z}}^n + \Psi_{l-1, m, N_{z}}^n + \Psi_{l, m+1, N_{z}}^n + \Psi_{l, m-1, N_{z}}^n + \Psi_{l, m-1, N_{z}+1}^{* n} + \Psi_{l, m, N_{z}-1}^n \right) - \Psi_{l, m, N_{z}}^{n-1}
+\end{align}
+$$
+Using the previous relation between the membrane's and the acoustic field's velocity, we get
+$$\begin{align*}
+\Psi_{l, m, N_{z}+1}^{*n} = \frac{h}{k}\left( w_{l, m}^{n+1} - w_{l, m}^{n-1} \right) + \Psi_{l, m, N_{z}-1}^n
+\end{align*}$$
+Which, once plugged inside the 3D wave equation recursion, gives us
+$$\begin{align*}
+\Psi_{l, m, N_{z}}^{n+1} =\ &\Psi_{l, m, N_{z}}^{n}\left( 2 - \frac{6\lambda^2}{h^2} \right) \\
+&+ \frac{\lambda^2}{h^2}\left( \Psi_{l+1, m, N_{z}}^{n} + \Psi_{l-1, m, N_{z}}^{n} + \Psi_{l, m+1, N_{z}}^n + \Psi_{l, m-1, N_{z}}^{n} + \Psi_{l, m, N_{z}-1}^{n} \right)\\
+&+ \frac{\lambda^2}{hk}\left( w_{l, m}^{n+1} - w_{l, m}^{n-1} \right) \\
+&-\Psi_{l, m, N_{z}}^{n-1}
+\end{align*}$$
+This, once plugged inside the membrane's scheme, gives us the final fully explicit scheme:
+$$\begin{align*}
+w_{l, m}^{n+1}\left( 1 - \frac{\rho \lambda^2}{2hk^2} \right) =\ &\lambda^2\left( w_{l+1, m}^{n} + w_{l-1, m}^n + w_{l, m+1}^n + w_{l, m-1}^n \right) + 2(1 - 2\lambda^2)w_{l, m}^{n} - w_{l, m}^{n-1}\left( 1 + \frac{\rho \lambda^2}{2hk^2} \right) \\
+&+ \frac{\rho}{2k}\Psi_{l, m, N_{z}}^{n}\left( 2 - \frac{6\lambda^2}{h^2} \right)  \\
+&+ \frac{\rho\lambda^2}{2hk^2}\left( \Psi_{l+1, m, N_{z}}^{n} + \Psi_{l-1, m, N_{z}}^{n} + \Psi_{l, m+1, N_{z}}^n + \Psi_{l, m-1, N_{z}}^{n} + \Psi_{l, m, N_{z}-1}^{n} \right)\\
+&-\frac{\rho}{2k}\Psi_{l, m, N_{z}}^{n-1}
+\end{align*}$$
+
 # Modal analysis
 In this section, we are computing solutions to the PDEs using modal analysis.
 ## Membrane
